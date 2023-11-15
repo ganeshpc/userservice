@@ -1,6 +1,5 @@
 package dev.ganeshpc.userservice.models;
 
-
 import java.util.List;
 
 import jakarta.persistence.Entity;

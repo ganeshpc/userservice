@@ -1,9 +1,9 @@
 package dev.ganeshpc.userservice.dtos;
 
 import dev.ganeshpc.userservice.models.User;
-import lombok.Setter;
+import lombok.Data;
 
-@Setter
+@Data
 public class RequestUserDto {
 
     private Long id;
