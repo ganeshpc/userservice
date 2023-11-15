@@ -1,16 +1,16 @@
 package dev.ganeshpc.userservice.services;
 
 import java.util.List;
+import java.util.Optional;
 
 import dev.ganeshpc.userservice.dtos.RequestUserDto;
 import dev.ganeshpc.userservice.dtos.ResponseUserDto;
 import dev.ganeshpc.userservice.exceptions.UserNotFoundException;
-import dev.ganeshpc.userservice.models.Session;
+import dev.ganeshpc.userservice.models.User;
 
 public interface UserService {
     List<ResponseUserDto> getUsers();
     ResponseUserDto getUser(Long id) throws UserNotFoundException;
-    Session login(RequestUserDto requestUserDto);
-    void logout(Session session);
     ResponseUserDto createUser(RequestUserDto requestUserDto);
+    User getUserByEmailId(String emailId) throws UserNotFoundException;
 }

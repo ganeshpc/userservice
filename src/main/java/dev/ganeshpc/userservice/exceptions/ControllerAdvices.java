@@ -9,10 +9,16 @@ import dev.ganeshpc.userservice.dtos.ErrorDto;
 
 @ControllerAdvice
 public class ControllerAdvices {
-    
+
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<ErrorDto> handleUserNotFoundException(UserNotFoundException e) {
 
         return new ResponseEntity<>(new ErrorDto(HttpStatus.NOT_FOUND, e.getMessage()), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(InvalidCredentialException.class)
+    public ResponseEntity<ErrorDto> handleInvalidCredentialException(InvalidCredentialException e) {
+
+        return new ResponseEntity<>(new ErrorDto(HttpStatus.BAD_REQUEST, e.getMessage()), HttpStatus.BAD_REQUEST);
     }
 }

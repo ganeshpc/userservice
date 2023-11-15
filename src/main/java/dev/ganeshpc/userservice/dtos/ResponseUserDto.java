@@ -1,5 +1,6 @@
 package dev.ganeshpc.userservice.dtos;
 
+import dev.ganeshpc.userservice.models.Session;
 import dev.ganeshpc.userservice.models.User;
 import lombok.Data;
 
@@ -9,6 +10,7 @@ public class ResponseUserDto {
     private Long id;
 
     private String emailId;
+
 
     User toUser() {
         User user = new User();

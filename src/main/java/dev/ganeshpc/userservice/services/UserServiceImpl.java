@@ -45,18 +45,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Session login(RequestUserDto requestUserDto) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'login'");
-    }
-
-    @Override
-    public void logout(Session session) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
     public ResponseUserDto createUser(RequestUserDto requestUserDto) {
         User user = requestUserDto.toUser();
         User savedUser = userRepository.save(user);
@@ -70,5 +58,19 @@ public class UserServiceImpl implements UserService {
         responseUserDto.setEmailId(user.getEmailId());
 
         return responseUserDto;
+    }
+
+    @Override
+    public User getUserByEmailId(String emailId) throws UserNotFoundException {
+
+        Optional<User> userOptional = userRepository.findByEmailId(emailId);
+
+        if (userOptional.isEmpty()) {
+            throw new UserNotFoundException("User not found with email: " + emailId);
+        }
+
+        User user = userOptional.get();
+
+        return user;
     }
 }
