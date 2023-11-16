@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-
 @RestController
 @RequestMapping("/users")
 public class UserController {
@@ -39,7 +38,6 @@ public class UserController {
         ResponseUserDto responseUserDto = userService.getUser(id);
         return responseUserDto;
     }
-    
 
     @PostMapping()
     public ResponseUserDto createUser(@RequestBody RequestUserDto requestUserDto) {
@@ -47,11 +45,11 @@ public class UserController {
         return responseUserDto;
     }
 
-    @PostMapping(value="{id}/roles")
-    public ResponseUserDto postMethodName(@PathVariable("id") Long id, @RequestBody SetRolesRequestDto setRolesRequestDto) {
-        ResponseUserDto responseUserDto = userService.setRoles(setRolesRequestDto.getRoles());
+    @PostMapping(value = "{id}/roles")
+    public ResponseUserDto postMethodName(@PathVariable("id") Long id,
+            @RequestBody SetRolesRequestDto setRolesRequestDto) throws UserNotFoundException {
+        ResponseUserDto responseUserDto = userService.setRoles(id, setRolesRequestDto.getRoles());
         return responseUserDto;
     }
-    
 
 }

@@ -1,7 +1,6 @@
 package dev.ganeshpc.userservice.services;
 
 import java.util.List;
-import java.util.Optional;
 
 import dev.ganeshpc.userservice.dtos.RequestUserDto;
 import dev.ganeshpc.userservice.dtos.ResponseUserDto;

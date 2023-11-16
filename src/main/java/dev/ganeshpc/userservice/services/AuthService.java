@@ -1,7 +1,14 @@
 package dev.ganeshpc.userservice.services;
 
+import java.time.LocalDate;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+
+import javax.crypto.SecretKey;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -11,10 +18,15 @@ import dev.ganeshpc.userservice.dtos.ResponseUserDto;
 import dev.ganeshpc.userservice.dtos.SessionResponseDto;
 import dev.ganeshpc.userservice.exceptions.InvalidCredentialException;
 import dev.ganeshpc.userservice.exceptions.UserNotFoundException;
+import dev.ganeshpc.userservice.models.Role;
 import dev.ganeshpc.userservice.models.Session;
 import dev.ganeshpc.userservice.models.SessionStatus;
 import dev.ganeshpc.userservice.models.User;
 import dev.ganeshpc.userservice.repositories.SessionRepository;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.MacAlgorithm;
 import jakarta.transaction.Transactional;
 
 @Service
@@ -39,18 +51,31 @@ public class AuthService {
             throw new InvalidCredentialException(emailId);
         }
 
-        String token = generateRandomString();
+        MacAlgorithm algo = Jwts.SIG.HS256;
+        SecretKey key = algo.key().build();
+
+        String message = "{\"sub\":\"joe\",\"iss\":\"me\"}";
+
+        Map<String, Object> jsonForJwt = new HashMap<>();
+
+        jsonForJwt.put("emailId", user.getEmailId());
+        jsonForJwt.put("roles", user.getRoles());
+        jsonForJwt.put("createdAt", new Date());
+        jsonForJwt.put("expiryAt", new Date());
+
+        String jws = Jwts.builder().claims(jsonForJwt)
+                .signWith(key, algo).compact();
 
         Session session = new Session();
         session.setUser(user);
-        session.setToken(token);
+        session.setToken(jws);
         session.setSessionStatus(SessionStatus.ACTIVE);
 
         sessionRepository.save(session);
 
         SessionResponseDto sessionResponseDto = new SessionResponseDto();
         sessionResponseDto.setEmailId(emailId);
-        sessionResponseDto.setToken(token);
+        sessionResponseDto.setToken(jws);
         sessionResponseDto.setUserId(user.getId());
         sessionResponseDto.setSessionStatus(SessionStatus.ACTIVE);
 
@@ -59,7 +84,16 @@ public class AuthService {
 
     @Transactional
     public void logout(String token, Long userId) {
-        sessionRepository.deleteByTokenAndUser_Id(token, userId);
+        Optional<Session> sessionOptional = sessionRepository.findByTokenAndUser_Id(token, userId);
+
+        if (sessionOptional.isEmpty()) {
+            return;
+        }
+
+        Session session = sessionOptional.get();
+
+        session.setSessionStatus(SessionStatus.ENDED);
+        sessionRepository.save(session);
     }
 
     public ResponseUserDto signup(String emailId, String password) {
@@ -71,6 +105,15 @@ public class AuthService {
 
     public SessionStatus validate(String token, Long userId) {
         Optional<Session> sessionOptional = sessionRepository.findByTokenAndUser_Id(token, userId);
+
+        Jws<Claims> claimsJws = Jwts.parser()
+                .build()
+                .parseSignedClaims(token);
+
+        String email = (String) claimsJws.getPayload().get("emailId");
+        List<Role> roles = (List<Role>) claimsJws.getPayload().get("roles");
+        Date createdAt = (Date) claimsJws.getPayload().get("createdAt");
+
 
         if (sessionOptional.isPresent()) {
             Session session = sessionOptional.get();
