@@ -53,7 +53,7 @@ public class AuthController {
 
     @PostMapping(value = "signup")
     public ResponseUserDto signup(@RequestBody RequestUserDto requestUserDto) {
-        ResponseUserDto responseUserDto = authService.signup(requestUserDto.getEmailId(), requestUserDto.getPassword());
+        ResponseUserDto responseUserDto = authService.signUp(requestUserDto.getEmailId(), requestUserDto.getPassword());
         return responseUserDto;
     }
 

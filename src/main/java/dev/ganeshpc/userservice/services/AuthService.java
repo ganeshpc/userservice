@@ -26,6 +26,7 @@ import dev.ganeshpc.userservice.repositories.SessionRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.MacAlgorithm;
 import jakarta.transaction.Transactional;
 
@@ -53,8 +54,6 @@ public class AuthService {
 
         MacAlgorithm algo = Jwts.SIG.HS256;
         SecretKey key = algo.key().build();
-
-        String message = "{\"sub\":\"joe\",\"iss\":\"me\"}";
 
         Map<String, Object> jsonForJwt = new HashMap<>();
 
@@ -96,24 +95,23 @@ public class AuthService {
         sessionRepository.save(session);
     }
 
-    public ResponseUserDto signup(String emailId, String password) {
+    public ResponseUserDto signUp(String emailId, String password) {
         RequestUserDto requestUserDto = new RequestUserDto();
         requestUserDto.setEmailId(emailId);
         requestUserDto.setPassword(bCryptPasswordEncoder.encode(password));
+        requestUserDto.setPassword(password);
         return userService.createUser(requestUserDto);
     }
 
     public SessionStatus validate(String token, Long userId) {
         Optional<Session> sessionOptional = sessionRepository.findByTokenAndUser_Id(token, userId);
 
-        Jws<Claims> claimsJws = Jwts.parser()
-                .build()
-                .parseSignedClaims(token);
+        // Jws<Claims> claimsJws = Jwts.parser()
+        // .build().parse
 
-        String email = (String) claimsJws.getPayload().get("emailId");
-        List<Role> roles = (List<Role>) claimsJws.getPayload().get("roles");
-        Date createdAt = (Date) claimsJws.getPayload().get("createdAt");
-
+        // String email = (String) claimsJws.getPayload().get("emailId");
+        // List<Role> roles = (List<Role>) claimsJws.getPayload().get("roles");
+        // Date createdAt = (Date) claimsJws.getPayload().get("createdAt");
 
         if (sessionOptional.isPresent()) {
             Session session = sessionOptional.get();
