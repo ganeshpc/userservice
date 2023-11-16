@@ -11,6 +11,13 @@ import dev.ganeshpc.userservice.exceptions.InvalidCredentialException;
 import dev.ganeshpc.userservice.exceptions.UserNotFoundException;
 import dev.ganeshpc.userservice.models.SessionStatus;
 import dev.ganeshpc.userservice.services.AuthService;
+
+import java.util.HashMap;
+
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.util.MultiValueMapAdapter;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -24,12 +31,19 @@ public class AuthController {
     }
 
     @PostMapping("login")
-    public SessionResponseDto login(@RequestBody RequestUserDto requestUserDto)
+    public ResponseEntity<SessionResponseDto> login(@RequestBody RequestUserDto requestUserDto)
             throws UserNotFoundException, InvalidCredentialException {
         SessionResponseDto sessionResponseDto = authService.login(requestUserDto.getEmailId(),
                 requestUserDto.getPassword());
 
-        return sessionResponseDto;
+        String token = sessionResponseDto.getToken();
+
+        MultiValueMapAdapter<String, String> headers = new MultiValueMapAdapter<>(new HashMap<>());
+        headers.add(HttpHeaders.SET_COOKIE, "auth-token:" + token);
+
+        ResponseEntity<SessionResponseDto> response = new ResponseEntity<>(sessionResponseDto, headers, HttpStatus.OK);
+
+        return response;
     }
 
     @PostMapping("logout")

@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import dev.ganeshpc.userservice.dtos.RequestUserDto;
 import dev.ganeshpc.userservice.dtos.ResponseUserDto;
+import dev.ganeshpc.userservice.dtos.SetRolesRequestDto;
 import dev.ganeshpc.userservice.exceptions.UserNotFoundException;
 import dev.ganeshpc.userservice.models.User;
 import dev.ganeshpc.userservice.services.UserService;
@@ -45,5 +46,12 @@ public class UserController {
         ResponseUserDto responseUserDto = userService.createUser(requestUserDto);
         return responseUserDto;
     }
+
+    @PostMapping(value="{id}/roles")
+    public ResponseUserDto postMethodName(@PathVariable("id") Long id, @RequestBody SetRolesRequestDto setRolesRequestDto) {
+        ResponseUserDto responseUserDto = userService.setRoles(setRolesRequestDto.getRoles());
+        return responseUserDto;
+    }
+    
 
 }

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import dev.ganeshpc.userservice.dtos.RequestUserDto;
 import dev.ganeshpc.userservice.dtos.ResponseUserDto;
 import dev.ganeshpc.userservice.exceptions.UserNotFoundException;
+import dev.ganeshpc.userservice.models.Role;
 import dev.ganeshpc.userservice.models.Session;
 import dev.ganeshpc.userservice.models.User;
 import dev.ganeshpc.userservice.repositories.UserRepository;
@@ -17,9 +18,11 @@ import dev.ganeshpc.userservice.repositories.UserRepository;
 public class UserServiceImpl implements UserService {
 
     private UserRepository userRepository;
+    private RoleService roleService;
 
-    public UserServiceImpl(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository, RoleService roleService) {
         this.userRepository = userRepository;
+        this.roleService = roleService;
     }
 
     @Override
@@ -72,5 +75,21 @@ public class UserServiceImpl implements UserService {
         User user = userOptional.get();
 
         return user;
+    }
+
+    @Override
+    public ResponseUserDto setRoles(Long userId, List<Long> roleIds) throws UserNotFoundException {
+        Optional<User> userOptional = userRepository.findById(userId);
+
+        if (userOptional.isEmpty()) {
+            throw new UserNotFoundException(userId);
+        }
+        User user = userOptional.get();
+
+        List<Role> roles = roleService.getRolesWithIds(roleIds);
+
+        // user.setRoles(roles);
+
+        return ResponseUserDto.toResponseUserDto(user);
     }
 }

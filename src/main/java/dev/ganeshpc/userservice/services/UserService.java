@@ -13,4 +13,5 @@ public interface UserService {
     ResponseUserDto getUser(Long id) throws UserNotFoundException;
     ResponseUserDto createUser(RequestUserDto requestUserDto);
     User getUserByEmailId(String emailId) throws UserNotFoundException;
+    ResponseUserDto setRoles(Long userId, List<Long> roles) throws UserNotFoundException;
 }

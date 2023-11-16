@@ -3,6 +3,7 @@ package dev.ganeshpc.userservice.services;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import dev.ganeshpc.userservice.dtos.RequestUserDto;
@@ -21,17 +22,20 @@ public class AuthService {
 
     private SessionRepository sessionRepository;
     private UserService userService;
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    public AuthService(SessionRepository sessionRepository, UserService userService) {
+    public AuthService(SessionRepository sessionRepository, UserService userService,
+            BCryptPasswordEncoder bCryptPasswordEncoder) {
         this.sessionRepository = sessionRepository;
         this.userService = userService;
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
 
     public SessionResponseDto login(String emailId, String password)
             throws InvalidCredentialException, UserNotFoundException {
         User user = userService.getUserByEmailId(emailId);
 
-        if (!password.equals(user.getPassword())) {
+        if (!bCryptPasswordEncoder.matches(password, user.getPassword())) {
             throw new InvalidCredentialException(emailId);
         }
 
@@ -61,7 +65,7 @@ public class AuthService {
     public ResponseUserDto signup(String emailId, String password) {
         RequestUserDto requestUserDto = new RequestUserDto();
         requestUserDto.setEmailId(emailId);
-        requestUserDto.setPassword(password);
+        requestUserDto.setPassword(bCryptPasswordEncoder.encode(password));
         return userService.createUser(requestUserDto);
     }
 
